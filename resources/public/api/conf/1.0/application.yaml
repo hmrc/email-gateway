@@ -1,49 +1,111 @@
-openapi: "3.0.3"
-
+openapi: 3.0.3
 info:
-  version: 1.0.0
-  title: Hello World
+  title: Email
+  contact:
+    name: CIP Insights & Reputation Team
+    email: cip-insights-and-reputation-g@digital.hmrc.gov.uk
+  version: '1.0'
+  description: >
+    # Overview
 
+    ### Email
+
+    This API enables your application to verify and/or get an opinion of the riskiness of an email.
+    
 servers:
-  - url: https://test-api.service.hmrc.gov.uk/hello-world
+  - url: https://test-api.service.hmrc.gov.uk/misc/email
     description: Sandbox
-  - url: https://api.service.hmrc.gov.uk/hello-world
+  - url: https://api.service.hmrc.gov.uk/misc/email
     description: Production
-
-components:
-  parameters:
-    acceptHeader:
-      name: Accept
-      in: header
-      schema:
-        type: string
-        enum: [
-          "application/vnd.hmrc.1.0+json",
-          "application/vnd.hmrc.1.0+xml"
-        ]
-      required: true
-
 paths:
-  /hello-world:
-    get:
-      summary: Placeholder hello world endpoint
-      description: |
-        An endpoint that returns "Hello world"
-      tags:
-        - email-gateway
-      parameters:
-        - $ref: '#/components/parameters/acceptHeader'
+  /verify:
+    post:
+      summary: Verify an email
+      description: >
+        Verify an email by generating a unique verification code and sending it to this email.
+      operationId: EmailVerification
+      security:
+        - applicationRestricted: [ ]
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: 'docs/verify-request.json'
+            example:
+              email: "joe@bloggs.co.uk"
+        required: true
       responses:
-        200:
-          description: "OK Response"
+        '200':
+          description: ''
+          headers: { }
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: 'docs/verify-response.json'
               example:
-                "Hello world"
+                correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
+                email: "joe@bloggs.co.uk"
+        3XX:
+          description: |
+            The request has been redirected. Clients should follow the redirect using the location header as per the HTTP specification.
+        400:
+          description: |
+            The request was invalid, e.g the postcode is not well formed.
+        5XX:
+          description: |
+            An unexpected server error occurred when processing the request. These are usually temporary and consumers should try again.
+      deprecated: false
+  /verify/passcode:
+    post:
+      summary: Verify an email verification passcode
+      description: >
+        Verify the verification code sent to this email matches.
+      operationId: EmailPasscodeVerification
       security:
-        - {}
+        - applicationRestricted: [ ]
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: 'docs/verify-passcode-request.json'
+            example:
+              correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
+              email: "joe@bloggs.co.uk"
+              passcode: "AB1234XYZ"
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: { }
+          content:
+            application/json:
+              schema:
+                $ref: 'docs/verify-passcode-response.json'
+              example:
+                correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
+                email: "joe@bloggs.co.uk"
+        3XX:
+          description: |
+            The request has been redirected. Clients should follow the redirect using the location header as per the HTTP specification.
+        400:
+          description: |
+            The request was invalid, e.g the postcode is not well formed.
+        5XX:
+          description: |
+            An unexpected server error occurred when processing the request. These are usually temporary and consumers should try again.
+      deprecated: false
+components:
+  securitySchemes:
+    applicationRestricted:
+      type: oauth2
+      description: |
+        HMRC supports OAuth 2.0 for authenticating application restricted API requests using an OAuth 2.0 Bearer Token in the AUTHORIZATION header.
+        See https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/application-restricted-endpoints for details.
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          scopes: { }

@@ -1,0 +1,16 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/object1614266033.json",
+  "title": "Root",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "format": "email"
+    }
+  },
+  "required": [
+    "email"
+  ]
+}

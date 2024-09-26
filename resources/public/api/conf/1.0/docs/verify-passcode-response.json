@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "correlationId": {
+      "description": "A unique `UUID` to allow the request/response to be tracked",
+      "type": "string",
+      "length": 36
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    }
+  },
+  "required": [
+    "correlationId",
+    "email"
+  ]
+}
