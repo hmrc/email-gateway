@@ -1,7 +1,7 @@
 
 # email-gateway
 
-This is a placeholder README.md for a new repository
+`email-gateway` publishes `email-verification` apis to the api-platform.
 
 ### License
 
