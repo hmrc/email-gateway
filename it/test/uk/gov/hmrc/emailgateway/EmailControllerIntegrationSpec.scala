@@ -104,5 +104,30 @@ class EmailControllerIntegrationSpec
         )
       }
     }
+
+    "respond with NOT_FOUND status" when {
+      "endpoint is not found" in {
+        externalWireMockServer.stubFor(
+          post(urlEqualTo(s"/non-existent"))
+            .withRequestBody(equalToJson("""{"email":"email@test.com"}"""))
+            .withHeader(HeaderNames.CONTENT_TYPE, equalTo(MimeTypes.JSON))
+            .willReturn(
+              aResponse()
+                .withStatus(NOT_FOUND)
+            )
+        )
+        val response =
+          wsClient
+            .url(s"$baseUrl/non-existent")
+            .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+            .post("""{"email": "email@test.com"""")
+            .futureValue
+
+        response.status shouldBe NOT_FOUND
+        response.json shouldBe Json.parse(
+          """{"statusCode":404,"message":"URI not found","requested":"/non-existent"}"""
+        )
+      }
+    }
   }
 }

@@ -52,19 +52,7 @@ class EmailControllerSpec
     "forward a 200 response from the downstream service" in {
       val response = """{
                        |"correlationId": "some-correlation-id",
-                       |"address":{
-                       | "line1":"1 High Street",
-                       | "country":"United Kingdom"
-                       |},
-                       |"insights":{
-                       |   "risk":{
-                       |      "riskScore": 100,
-                       |      "reason": "ADDRESS_ON_WATCH_LIST"
-                       |   },
-                       |   "relationships":{
-                       |      "occurrences":[]
-                       |   }
-                       |},
+                       |"email":"joe@blogs.co.uk",
                        |}""".stripMargin
 
       Server.withRouterFromComponents(
@@ -79,16 +67,11 @@ class EmailControllerSpec
             )
         }
       } { _ =>
-        val requestAddressJson = Json
-          .parse("""{
-            | "address":{
-            |   "line1": "1 High Street",
-            |   "country": "United Kingdom"
-            | }
-            |}""".stripMargin)
+        val requestEmailJson = Json
+          .parse("""{"email":"joe@blogs.co.uk"}""")
           .as[JsObject]
         val fakeRequest = FakeRequest("POST", "/verify")
-          .withJsonBody(requestAddressJson)
+          .withJsonBody(requestEmailJson)
           .withHeaders(
             "True-Calling-Client" -> "example-service",
             HeaderNames.CONTENT_TYPE -> MimeTypes.JSON
@@ -100,9 +83,38 @@ class EmailControllerSpec
       }
     }
 
+    "forward a 404 response from the downstream service" in {
+      val errorResponse =
+        """{"code": "MALFORMED_JSON", "path.missing: email"}""".stripMargin
+
+      Server.withRouterFromComponents(
+        ServerConfig(port = Some(verificationPort))
+      ) { components =>
+        import components.{defaultActionBuilder => Action}
+        {
+          case r @ SPOST(p"/verify") =>
+            Action(
+              NotFound(errorResponse)
+                .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+            )
+        }
+      } { _ =>
+        val fakeRequest = FakeRequest("POST", "/verify")
+          .withJsonBody(Json.parse("""{"no-email": ""}"""))
+          .withHeaders(
+            "True-Calling-Client" -> "example-service",
+            HeaderNames.CONTENT_TYPE -> MimeTypes.JSON
+          )
+
+        val result = controller.any()(fakeRequest)
+        status(result) shouldBe Status.NOT_FOUND
+        contentAsString(result) shouldBe errorResponse
+      }
+    }
+
     "forward a 400 response from the downstream service" in {
       val errorResponse =
-        """{"code": "MALFORMED_JSON", "path.missing: address"}""".stripMargin
+        """{"code": "MALFORMED_JSON", "path.missing: email"}""".stripMargin
 
       Server.withRouterFromComponents(
         ServerConfig(port = Some(verificationPort))
@@ -117,7 +129,7 @@ class EmailControllerSpec
         }
       } { _ =>
         val fakeRequest = FakeRequest("POST", "/verify")
-          .withJsonBody(Json.parse("""{"no-address": {}}"""))
+          .withJsonBody(Json.parse("""{"no-email": ""}"""))
           .withHeaders(
             "True-Calling-Client" -> "example-service",
             HeaderNames.CONTENT_TYPE -> MimeTypes.JSON
@@ -131,7 +143,7 @@ class EmailControllerSpec
 
     "handle a malformed json payload" in {
       val errorResponse =
-        """{"code": "MALFORMED_JSON", "path.missing: address"}""".stripMargin
+        """{"code": "MALFORMED_JSON", "path.missing: email"}""".stripMargin
 
       Server.withRouterFromComponents(
         ServerConfig(port = Some(verificationPort))
@@ -173,6 +185,5 @@ class EmailControllerSpec
       status(result) shouldBe Status.BAD_GATEWAY
       contentAsString(result) shouldBe errorResponse
     }
-
   }
 }
