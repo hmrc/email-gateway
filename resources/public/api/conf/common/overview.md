@@ -1,1 +1,3 @@
-This is a placeholder overview.md for a new API Microservice repository
+# email-gateway
+
+the api-platform service to permit integration with the email-insights services.

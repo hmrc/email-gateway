@@ -1,3 +1,4 @@
 # microservice specific routes
 
-GET        /hello-world             uk.gov.hmrc.emailgateway.controllers.MicroserviceHelloWorldController.hello
+POST        /verify                 uk.gov.hmrc.emailgateway.controllers.EmailController.any()
+POST        /verify/passcode        uk.gov.hmrc.emailgateway.controllers.EmailController.any()
