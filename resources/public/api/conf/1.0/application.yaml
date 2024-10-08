@@ -11,14 +11,14 @@ info:
     ### Email
 
     This API enables your application to verify and/or get an opinion of the riskiness of an email.
-    
+
 servers:
   - url: https://test-api.service.hmrc.gov.uk/misc/email
     description: Sandbox
   - url: https://api.service.hmrc.gov.uk/misc/email
     description: Production
 paths:
-  /verify:
+  /send-code:
     post:
       summary: Verify an email
       description: >
@@ -35,6 +35,47 @@ paths:
               $ref: 'docs/verify-request.json'
             example:
               email: "joe@bloggs.co.uk"
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: { }
+          content:
+            application/json:
+              schema:
+                $ref: 'docs/verify-response.json'
+              example:
+                correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
+                email: "joe@bloggs.co.uk"
+        3XX:
+          description: |
+            The request has been redirected. Clients should follow the redirect using the location header as per the HTTP specification.
+        400:
+          description: |
+            The request was invalid, e.g the postcode is not well formed.
+        5XX:
+          description: |
+            An unexpected server error occurred when processing the request. These are usually temporary and consumers should try again.
+      deprecated: false
+  /verify-code:
+    post:
+      summary: Verify an email verification passcode
+      description: >
+        Verify the verification code sent to this email matches.
+      operationId: EmailPasscodeVerification
+      security:
+        - applicationRestricted: [ ]
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: 'docs/verify-passcode-request.json'
+            example:
+              correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
+              email: "joe@bloggs.co.uk"
+              passcode: "AB1234XYZ"
         required: true
       responses:
         '200':
