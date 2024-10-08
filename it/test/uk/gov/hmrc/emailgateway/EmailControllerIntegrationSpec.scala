@@ -50,9 +50,9 @@ class EmailControllerIntegrationSpec
 
   "AddressInsightsController" should {
     "respond with OK status" when {
-      "valid json payload is provided" in {
+      "valid json payload is provided for send-code" in {
         externalWireMockServer.stubFor(
-          post(urlEqualTo(s"/verify"))
+          post(urlEqualTo(s"/send-code"))
             .withRequestBody(equalToJson("""{"email":"email@test.com"}"""))
             .withHeader(HeaderNames.CONTENT_TYPE, equalTo(MimeTypes.JSON))
             .willReturn(
@@ -65,7 +65,7 @@ class EmailControllerIntegrationSpec
         )
         val response =
           wsClient
-            .url(s"$baseUrl/verify")
+            .url(s"$baseUrl/send-code")
             .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
             .post("""{"email":"email@test.com"}""")
             .futureValue
@@ -75,12 +75,32 @@ class EmailControllerIntegrationSpec
           """{"correlationId":"220967234589763549876", "email":"email@test.com"}"""
         )
       }
+
+      "valid json payload is provided for verify-code" in {
+        externalWireMockServer.stubFor(
+          post(urlEqualTo(s"/verify-code"))
+            .withRequestBody(equalToJson("""{"email":"email@test.com", "verificationCode":"ABCEFG"}"""))
+            .withHeader(HeaderNames.CONTENT_TYPE, equalTo(MimeTypes.JSON))
+            .willReturn(
+              aResponse()
+                .withStatus(NO_CONTENT)
+            )
+        )
+        val response =
+          wsClient
+            .url(s"$baseUrl/verify-code")
+            .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+            .post("""{"email":"email@test.com", "verificationCode":"ABCEFG"}""")
+            .futureValue
+
+        response.status shouldBe NO_CONTENT
+      }
     }
 
     "respond with BAD_REQUEST status" when {
       "invalid json payload is provided" in {
         externalWireMockServer.stubFor(
-          post(urlEqualTo(s"/verify"))
+          post(urlEqualTo(s"/send-code"))
             .withRequestBody(equalToJson("""{"email":"email@test.com"}"""))
             .withHeader(HeaderNames.CONTENT_TYPE, equalTo(MimeTypes.JSON))
             .willReturn(
@@ -93,7 +113,7 @@ class EmailControllerIntegrationSpec
         )
         val response =
           wsClient
-            .url(s"$baseUrl/verify")
+            .url(s"$baseUrl/send-code")
             .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
             .post("""{"email": "email@test.com"""")
             .futureValue
