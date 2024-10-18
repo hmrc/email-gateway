@@ -17,44 +17,43 @@
 package uk.gov.hmrc.emailgateway.connector
 
 import play.api.Logging
-import play.api.http.HeaderNames._
+import play.api.http.HeaderNames.*
 import play.api.http.{HeaderNames, HttpEntity, MimeTypes}
 import play.api.libs.json.JsObject
 import play.api.mvc.Results.{BadGateway, InternalServerError, MethodNotAllowed}
 import play.api.mvc.{AnyContent, Request, ResponseHeader, Result}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, HttpResponse, StringContextOps}
+import play.api.libs.ws.JsonBodyWritables.*
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DownstreamConnector @Inject()(httpClient: HttpClientV2) extends Logging {
-  def forward(request: Request[AnyContent], url: String, authToken: String)(
-    implicit ec: ExecutionContext
-  ): Future[Result] = {
+class DownstreamConnector @Inject() (httpClient: HttpClientV2) extends Logging:
+  def forward(request: Request[AnyContent], url: String, authToken: String)(implicit
+    ec: ExecutionContext
+  ): Future[Result] =
     import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 
     logger.info(s"Forwarding to downstream url: $url")
 
-    (request.method, request.headers(HeaderNames.CONTENT_TYPE)) match {
+    (request.method, request.headers(HeaderNames.CONTENT_TYPE)) match
       case ("POST", MimeTypes.JSON) =>
         val onwardHeaders =
           request.headers.remove(CONTENT_LENGTH, HOST, AUTHORIZATION).headers
-        implicit val hc: HeaderCarrier = HeaderCarrier(
-          authorization = Some(Authorization(authToken))
-        )
+        implicit val hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization(authToken)))
 
-        try {
+        try
           httpClient
             .post(url"$url")
             .withBody(request.body.asJson.getOrElse(JsObject.empty)) // TODO: Better way to do this?
             .setHeader(onwardHeaders: _*)
             .execute[HttpResponse]
-            .map { response: HttpResponse =>
+            .map { (response: HttpResponse) =>
               val returnHeaders = response.headers
-                .filterNot {
-                  case (n, _) => n == CONTENT_TYPE || n == CONTENT_LENGTH
+                .filterNot { case (n, _) =>
+                  n == CONTENT_TYPE || n == CONTENT_LENGTH
                 }
                 .view
                 .mapValues(x => x.mkString)
@@ -69,22 +68,20 @@ class DownstreamConnector @Inject()(httpClient: HttpClientV2) extends Logging {
                 )
               )
             }
-            .recoverWith {
-              case t: Throwable =>
-                Future.successful(
-                  BadGateway(
-                    "{\"code\": \"REQUEST_DOWNSTREAM\", \"desc\": \"An issue occurred when the downstream service tried to handle the request\"}"
-                  ).as(MimeTypes.JSON)
-                )
+            .recoverWith { case t: Throwable =>
+              Future.successful(
+                BadGateway(
+                  "{\"code\": \"REQUEST_DOWNSTREAM\", \"desc\": \"An issue occurred when the downstream service tried to handle the request\"}"
+                ).as(MimeTypes.JSON)
+              )
             }
-        } catch {
+        catch
           case t: Throwable =>
             Future.successful(
               InternalServerError(
                 "{\"code\": \"REQUEST_FORWARDING\", \"desc\": \"An issue occurred when forwarding the request to the downstream service\"}"
               ).as(MimeTypes.JSON)
             )
-        }
 
       case _ =>
         Future.successful(
@@ -92,12 +89,10 @@ class DownstreamConnector @Inject()(httpClient: HttpClientV2) extends Logging {
             "{\"code\": \"UNSUPPORTED_METHOD\", \"desc\": \"Unsupported HTTP method or content-type\"}"
           ).as(MimeTypes.JSON)
         )
-    }
-  }
 
-  def checkConnectivity(url: String, authToken: String)(
-    implicit ec: ExecutionContext
-  ): Future[Boolean] = {
+  def checkConnectivity(url: String, authToken: String)(implicit
+    ec: ExecutionContext
+  ): Future[Boolean] =
     import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
     implicit val hc: HeaderCarrier = HeaderCarrier(
       authorization = Some(Authorization(authToken))
@@ -113,12 +108,9 @@ class DownstreamConnector @Inject()(httpClient: HttpClientV2) extends Logging {
           case response if response.status / 100 == 5 => false
           case _                                      => true
         }
-        .recoverWith {
-          case t: Throwable =>
-            Future.successful(false)
+        .recoverWith { case t: Throwable =>
+          Future.successful(false)
         }
     } catch {
       case t: Throwable => Future.successful(false)
     }
-  }
-}

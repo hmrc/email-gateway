@@ -22,12 +22,13 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
+import play.api.libs.ws.DefaultBodyWritables.*
 
 class EmailControllerIntegrationSpec
     extends AnyWordSpec
@@ -35,7 +36,7 @@ class EmailControllerIntegrationSpec
     with ScalaFutures
     with IntegrationPatience
     with GuiceOneServerPerSuite
-    with ExternalWireMockSupport {
+    with ExternalWireMockSupport:
 
   private val wsClient = app.injector.instanceOf[WSClient]
   private val baseUrl = s"http://localhost:$port"
@@ -48,9 +49,9 @@ class EmailControllerIntegrationSpec
       )
       .build()
 
-  "AddressInsightsController" should {
-    "respond with OK status" when {
-      "valid json payload is provided for send-code" in {
+  "AddressInsightsController" should:
+    "respond with OK status" when:
+      "valid json payload is provided for send-code" in:
         externalWireMockServer.stubFor(
           post(urlEqualTo(s"/send-code"))
             .withRequestBody(equalToJson("""{"email":"email@test.com"}"""))
@@ -74,9 +75,8 @@ class EmailControllerIntegrationSpec
         response.json shouldBe Json.parse(
           """{"correlationId":"220967234589763549876", "email":"email@test.com"}"""
         )
-      }
 
-      "valid json payload is provided for verify-code" in {
+      "valid json payload is provided for verify-code" in:
         externalWireMockServer.stubFor(
           post(urlEqualTo(s"/verify-code"))
             .withRequestBody(equalToJson("""{"email":"email@test.com", "verificationCode":"ABCEFG"}"""))
@@ -94,11 +94,9 @@ class EmailControllerIntegrationSpec
             .futureValue
 
         response.status shouldBe NO_CONTENT
-      }
-    }
 
-    "respond with BAD_REQUEST status" when {
-      "invalid json payload is provided" in {
+    "respond with BAD_REQUEST status" when:
+      "invalid json payload is provided" in:
         externalWireMockServer.stubFor(
           post(urlEqualTo(s"/send-code"))
             .withRequestBody(equalToJson("""{"email":"email@test.com"}"""))
@@ -122,11 +120,9 @@ class EmailControllerIntegrationSpec
         response.json shouldBe Json.parse(
           """{"statusCode":400,"message":"bad request, cause: invalid json"}"""
         )
-      }
-    }
 
-    "respond with NOT_FOUND status" when {
-      "endpoint is not found" in {
+    "respond with NOT_FOUND status" when:
+      "endpoint is not found" in:
         externalWireMockServer.stubFor(
           post(urlEqualTo(s"/non-existent"))
             .withRequestBody(equalToJson("""{"email":"email@test.com"}"""))
@@ -147,7 +143,3 @@ class EmailControllerIntegrationSpec
         response.json shouldBe Json.parse(
           """{"statusCode":404,"message":"URI not found","requested":"/non-existent"}"""
         )
-      }
-    }
-  }
-}

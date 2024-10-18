@@ -25,16 +25,13 @@ import play.api.http.{HeaderNames, MimeTypes, Status}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Results._
-import play.api.routing.sird.{POST => SPOST, _}
+import play.api.routing.sird.{POST as SPOST, *}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.core.server.{Server, ServerConfig}
 import uk.gov.hmrc.http.HeaderCarrier
 
-class EmailControllerSpec
-    extends AnyWordSpec
-    with Matchers
-    with GuiceOneAppPerSuite {
+class EmailControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite:
   val verificationPort = 11222
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -46,10 +43,10 @@ class EmailControllerSpec
   private val controller = app.injector.instanceOf[EmailController]
   implicit val mat: Materializer = app.injector.instanceOf[Materializer]
 
-  "POST /insights" should {
+  "POST /insights" should:
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    "forward a 200 response from the downstream service" in {
+    "forward a 200 response from the downstream service" in:
       val response = """{
                        |"correlationId": "some-correlation-id",
                        |"email":"joe@blogs.co.uk",
@@ -59,12 +56,11 @@ class EmailControllerSpec
         ServerConfig(port = Some(verificationPort))
       ) { components =>
         import components.{defaultActionBuilder => Action}
-        {
-          case r @ SPOST(p"/verify") =>
-            Action(
-              Ok(response)
-                .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-            )
+        { case r @ SPOST(p"/verify") =>
+          Action(
+            Ok(response)
+              .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+          )
         }
       } { _ =>
         val requestEmailJson = Json
@@ -81,9 +77,8 @@ class EmailControllerSpec
         status(result) shouldBe Status.OK
         contentAsString(result) shouldBe response
       }
-    }
 
-    "forward a 404 response from the downstream service" in {
+    "forward a 404 response from the downstream service" in:
       val errorResponse =
         """{"code": "MALFORMED_JSON", "path.missing: email"}""".stripMargin
 
@@ -91,12 +86,11 @@ class EmailControllerSpec
         ServerConfig(port = Some(verificationPort))
       ) { components =>
         import components.{defaultActionBuilder => Action}
-        {
-          case r @ SPOST(p"/verify") =>
-            Action(
-              NotFound(errorResponse)
-                .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-            )
+        { case r @ SPOST(p"/verify") =>
+          Action(
+            NotFound(errorResponse)
+              .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+          )
         }
       } { _ =>
         val fakeRequest = FakeRequest("POST", "/verify")
@@ -110,9 +104,8 @@ class EmailControllerSpec
         status(result) shouldBe Status.NOT_FOUND
         contentAsString(result) shouldBe errorResponse
       }
-    }
 
-    "forward a 400 response from the downstream service" in {
+    "forward a 400 response from the downstream service" in:
       val errorResponse =
         """{"code": "MALFORMED_JSON", "path.missing: email"}""".stripMargin
 
@@ -120,12 +113,11 @@ class EmailControllerSpec
         ServerConfig(port = Some(verificationPort))
       ) { components =>
         import components.{defaultActionBuilder => Action}
-        {
-          case r @ SPOST(p"/verify") =>
-            Action(
-              BadRequest(errorResponse)
-                .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-            )
+        { case r @ SPOST(p"/verify") =>
+          Action(
+            BadRequest(errorResponse)
+              .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+          )
         }
       } { _ =>
         val fakeRequest = FakeRequest("POST", "/verify")
@@ -139,9 +131,8 @@ class EmailControllerSpec
         status(result) shouldBe Status.BAD_REQUEST
         contentAsString(result) shouldBe errorResponse
       }
-    }
 
-    "handle a malformed json payload" in {
+    "handle a malformed json payload" in:
       val errorResponse =
         """{"code": "MALFORMED_JSON", "path.missing: email"}""".stripMargin
 
@@ -149,12 +140,11 @@ class EmailControllerSpec
         ServerConfig(port = Some(verificationPort))
       ) { components =>
         import components.{defaultActionBuilder => Action}
-        {
-          case r @ SPOST(p"/verify") =>
-            Action(
-              BadRequest(errorResponse)
-                .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-            )
+        { case r @ SPOST(p"/verify") =>
+          Action(
+            BadRequest(errorResponse)
+              .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+          )
         }
       } { _ =>
         val fakeRequest = FakeRequest("POST", "/verify")
@@ -168,9 +158,8 @@ class EmailControllerSpec
         status(result) shouldBe Status.BAD_REQUEST
         contentAsString(result) shouldBe errorResponse
       }
-    }
 
-    "return bad gateway if there is no connectivity to the downstream service" in {
+    "return bad gateway if there is no connectivity to the downstream service" in:
       val errorResponse =
         """{"code": "REQUEST_DOWNSTREAM", "desc": "An issue occurred when the downstream service tried to handle the request"}""".stripMargin
 
@@ -184,6 +173,3 @@ class EmailControllerSpec
       val result = controller.any()(fakeRequest)
       status(result) shouldBe Status.BAD_GATEWAY
       contentAsString(result) shouldBe errorResponse
-    }
-  }
-}

@@ -23,14 +23,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ToggledAuthorisedFunctions extends AuthorisedFunctions {
+trait ToggledAuthorisedFunctions extends AuthorisedFunctions:
 
   def toggledAuthorised(enabled: Boolean, predicate: Predicate): ToggledAuthorisedFunction = new ToggledAuthorisedFunction(enabled, predicate)
 
-  class ToggledAuthorisedFunction(enabled: Boolean, predicate: Predicate) {
-    def apply[A](body: => Future[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
-      val result = if (enabled) authConnector.authorise(predicate, EmptyRetrieval) else Future.successful()
+  class ToggledAuthorisedFunction(enabled: Boolean, predicate: Predicate):
+    def apply[A](body: => Future[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
+      val result = if (enabled) authConnector.authorise(predicate, EmptyRetrieval) else Future.successful(())
       result.flatMap(_ => body)
-    }
-  }
-}
