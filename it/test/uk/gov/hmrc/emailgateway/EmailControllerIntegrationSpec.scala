@@ -48,72 +48,83 @@ class EmailControllerIntegrationSpec
       )
       .build()
 
-  "AddressInsightsController" should {
+  "EmailController" should {
     "respond with OK status" when {
       "valid json payload is provided for send-code" in {
         externalWireMockServer.stubFor(
-          post(urlEqualTo(s"/send-code"))
+          post(urlEqualTo(s"/email-verification/v2/send-code"))
             .withRequestBody(equalToJson("""{"email":"email@test.com"}"""))
             .withHeader(HeaderNames.CONTENT_TYPE, equalTo(MimeTypes.JSON))
             .willReturn(
               aResponse()
                 .withBody(
-                  """{"correlationId":"220967234589763549876", "email": "email@test.com"}"""
+                  """{"code":"CODE_SENT", "message":"Email containing verification code has been sent"}"""
                 )
                 .withStatus(OK)
             )
         )
         val response =
           wsClient
-            .url(s"$baseUrl/send-code")
+            .url(s"$baseUrl/email-gateway/send-code")
             .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
             .post("""{"email":"email@test.com"}""")
             .futureValue
 
         response.status shouldBe OK
         response.json shouldBe Json.parse(
-          """{"correlationId":"220967234589763549876", "email":"email@test.com"}"""
+          """{"code":"CODE_SENT", "message":"Email containing verification code has been sent"}"""
         )
       }
 
       "valid json payload is provided for verify-code" in {
         externalWireMockServer.stubFor(
-          post(urlEqualTo(s"/verify-code"))
-            .withRequestBody(equalToJson("""{"email":"email@test.com", "verificationCode":"ABCEFG"}"""))
+          post(urlEqualTo(s"/email-verification/v2/verify-code"))
+            .withRequestBody(
+              equalToJson(
+                """{"email":"email@test.com", "verificationCode":"ABCEFG"}"""
+              )
+            )
             .withHeader(HeaderNames.CONTENT_TYPE, equalTo(MimeTypes.JSON))
             .willReturn(
               aResponse()
-                .withStatus(NO_CONTENT)
+                .withStatus(OK)
+                .withBody(
+                  """{"code":"CODE_VERIFIED", "message": "The verification code for the email verified successfully"}"""
+                )
             )
         )
         val response =
           wsClient
-            .url(s"$baseUrl/verify-code")
+            .url(s"$baseUrl/email-gateway/verify-code")
             .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-            .post("""{"email":"email@test.com", "verificationCode":"ABCEFG"}""")
+            .post(
+              """{"email":"email@test.com", "verificationCode":"ABCEFG"}"""
+            )
             .futureValue
 
-        response.status shouldBe NO_CONTENT
+        response.status shouldBe OK
+        println(s""">>> response.json: ${response}""")
+        response.json shouldBe Json.parse(
+          """{"code":"CODE_VERIFIED", "message": "The verification code for the email verified successfully"}"""
+        )
       }
     }
 
     "respond with BAD_REQUEST status" when {
       "invalid json payload is provided" in {
         externalWireMockServer.stubFor(
-          post(urlEqualTo(s"/send-code"))
-            .withRequestBody(equalToJson("""{"email":"email@test.com"}"""))
+          post(urlEqualTo(s"/email-verification/v2/send-code"))
+            .withRequestBody(equalTo("""{"email":"email@test.com""""))
             .withHeader(HeaderNames.CONTENT_TYPE, equalTo(MimeTypes.JSON))
             .willReturn(
               aResponse()
-                .withBody(
-                  """{"correlationId":"220967234589763549876", "email": "email@test.com"}"""
-                )
+                .withBody("""{"code":"CODE_NOT_SENT", "message": ""}""")
                 .withStatus(OK)
             )
         )
         val response =
           wsClient
-            .url(s"$baseUrl/send-code")
+            .url(s"$baseUrl/email-gateway/send-code")
             .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
             .post("""{"email": "email@test.com"""")
             .futureValue

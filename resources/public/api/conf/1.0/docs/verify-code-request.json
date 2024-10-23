@@ -14,13 +14,13 @@
       "type": "string",
       "format": "email"
     },
-    "passcode": {
+    "verificationCode": {
       "type": "string"
     }
   },
   "required": [
     "correlationId",
     "email",
-    "passcode"
+    "verificationCode"
   ]
 }

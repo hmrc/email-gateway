@@ -7,35 +7,17 @@
       "type": "string",
       "length": 36
     },
-    "address": {
+    "email": {
       "type": "object",
       "properties": {
-        "line1": {
-          "type": "string"
-        },
-        "line2": {
-          "type": "string"
-        },
-        "line3": {
-          "type": "string"
-        },
-        "line4": {
-          "type": "string"
-        },
-        "line5": {
-          "type": "string"
-        },
-        "postcode": {
-          "type": "string"
-        },
-        "uprn": {
-          "type": "string"
-        },
-        "country": {
-          "type": "string"
+        "email": {
+          "type": "string",
+          "format": "email"
         }
       },
-      "required": ["line1", "country"]
+      "required": [
+        "email"
+      ]
     },
     "insights": {
       "type": "object",
