@@ -20,10 +20,10 @@ servers:
 paths:
   /send-code:
     post:
-      summary: Verify an email
+      summary: Send a verification code to the provided email
       description: >
-        Verify an email by generating a unique verification code and sending it to this email.
-      operationId: EmailVerification
+        Generate a unique verification code and send it to the email provided.
+      operationId: SendEmailVerificationCode
       security:
         - applicationRestricted: [ ]
       parameters: []
@@ -32,7 +32,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: 'docs/verify-request.json'
+              $ref: 'docs/send-code-request.json'
             example:
               email: "joe@bloggs.co.uk"
         required: true
@@ -43,7 +43,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'docs/verify-response.json'
+                $ref: 'docs/send-code-response.json'
               example:
                 correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
                 email: "joe@bloggs.co.uk"
@@ -59,10 +59,10 @@ paths:
       deprecated: false
   /verify-code:
     post:
-      summary: Verify an email verification passcode
+      summary: Verify an email verification code
       description: >
         Verify the verification code sent to this email matches.
-      operationId: EmailPasscodeVerification
+      operationId: CheckEmailVerificationCode
       security:
         - applicationRestricted: [ ]
       parameters: []
@@ -71,11 +71,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: 'docs/verify-passcode-request.json'
+              $ref: 'docs/verify-code-request.json'
             example:
               correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
               email: "joe@bloggs.co.uk"
-              passcode: "AB1234XYZ"
+              verificationCode: "AB1234XYZ"
         required: true
       responses:
         '200':
@@ -84,48 +84,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: 'docs/verify-response.json'
-              example:
-                correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
-                email: "joe@bloggs.co.uk"
-        3XX:
-          description: |
-            The request has been redirected. Clients should follow the redirect using the location header as per the HTTP specification.
-        400:
-          description: |
-            The request was invalid, e.g the postcode is not well formed.
-        5XX:
-          description: |
-            An unexpected server error occurred when processing the request. These are usually temporary and consumers should try again.
-      deprecated: false
-  /verify/passcode:
-    post:
-      summary: Verify an email verification passcode
-      description: >
-        Verify the verification code sent to this email matches.
-      operationId: EmailPasscodeVerification
-      security:
-        - applicationRestricted: [ ]
-      parameters: []
-      requestBody:
-        description: ''
-        content:
-          application/json:
-            schema:
-              $ref: 'docs/verify-passcode-request.json'
-            example:
-              correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
-              email: "joe@bloggs.co.uk"
-              passcode: "AB1234XYZ"
-        required: true
-      responses:
-        '200':
-          description: ''
-          headers: { }
-          content:
-            application/json:
-              schema:
-                $ref: 'docs/verify-passcode-response.json'
+                $ref: 'docs/verify-code-response.json'
               example:
                 correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
                 email: "joe@bloggs.co.uk"

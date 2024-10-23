@@ -46,7 +46,7 @@ class EmailController @Inject()(
       AuthProviders(StandardApplication)
     ) {
       val path = request.target.uri.toString
-        .replace("email-gateway", "email-verification")
+        .replace("/email-gateway", "/email-verification/v2")
       val url = s"${config.verificationBaseUrl}$path"
 
       connector.forward(request, url, config.internalAuthToken)
@@ -54,7 +54,7 @@ class EmailController @Inject()(
   }
 
   def checkConnectivity(): Unit = {
-    val url = s"${config.verificationBaseUrl}/verify"
+    val url = s"${config.verificationBaseUrl}/email-verification/v2/send-code"
     connector.checkConnectivity(url, config.internalAuthToken).map { result =>
       if (result) {
         logger.info("Connectivity to email-verification established")
