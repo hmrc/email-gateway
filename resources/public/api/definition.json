@@ -1,6 +1,4 @@
 {
-  "scopes": [
-  ],
   "api": {
     "name": "Email",
     "description": "Validation, verification and insights into emails - provided by CIP (Customer Insights Platform) Insights and Reputation.",
