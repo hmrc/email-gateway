@@ -10,7 +10,7 @@ info:
 
     ### Email
 
-    This API enables your application to verify and/or get an opinion of the riskiness of an email.
+     This API validates a user's email by sending a verification code, which the user enters to complete the verification.
 
 servers:
   - url: https://test-api.service.hmrc.gov.uk/misc/email
@@ -75,7 +75,7 @@ paths:
             example:
               correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
               email: "joe@bloggs.co.uk"
-              verificationCode: "AB1234XYZ"
+              verificationCode: "ABCXYZ"
         required: true
       responses:
         '200':
@@ -109,3 +109,14 @@ components:
         clientCredentials:
           tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
           scopes: { }
+  parameters:
+    acceptHeader:
+      name: Accept
+      in: header
+      schema:
+        type: string
+        enum: [
+          "application/vnd.hmrc.1.0+json",
+          "application/vnd.hmrc.1.0+xml"
+        ]
+      required: true

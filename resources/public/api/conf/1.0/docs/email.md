@@ -17,8 +17,8 @@ All requests must include a uniquely identifiable `user-agent` header. Please co
 
 * POST /send-code
     * [Request](send-code-request-sample.json) ([schema](send-code-request.json))
-    * [Response](verify-code-response-sample.json) ([schema](risk-response.json))
+    * [Response](verify-code-response-sample.json) ([schema](send-code-response.json))
 * 
 * POST /verify-code
-    * [Request](send-code-request-sample.json) ([schema](send-code-request.json))
-    * [Response](verify-code-response-sample.json) ([schema](risk-response.json))
+    * [Request](verify-code-request-sample.json) ([schema](verify-code-request.json))
+    * [Response](verify-code-response-sample.json) ([schema](verify-code-response.json))
