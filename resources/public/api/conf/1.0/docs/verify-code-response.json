@@ -1,19 +1,24 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Email verification - Verify Code Response",
   "type": "object",
   "properties": {
-    "correlationId": {
-      "description": "A unique `UUID` to allow the request/response to be tracked",
+    "status": {
       "type": "string",
-      "length": 36
+      "examples": [
+        "CODE_VERIFIED"
+      ]
     },
-    "email": {
+    "message": {
       "type": "string",
-      "format": "email"
+      "examples": [
+        "The verification code for the email verified successfully"
+      ]
     }
   },
   "required": [
-    "correlationId",
-    "email"
+    "status",
+    "message"
   ]
 }
+
