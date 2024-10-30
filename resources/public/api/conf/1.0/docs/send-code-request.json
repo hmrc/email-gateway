@@ -1,13 +1,14 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://example.com/object1614266033.json",
-  "title": "Root",
+  "title": "Email verification - Send Code Request",
   "type": "object",
   "properties": {
     "email": {
       "type": "string",
-      "format": "email"
+      "examples": [
+        "joe@bloggs.co.uk"
+      ]
     }
   },
   "required": [

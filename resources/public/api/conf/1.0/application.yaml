@@ -7,10 +7,8 @@ info:
   version: '1.0'
   description: >
     # Overview
-
-    ### Email
-
-     This API validates a user's email by sending a verification code, which the user enters to complete the verification.
+    ### Email Verification
+    This API validates a user's email by sending a verification code, which the user enters to complete the verification.
 
 servers:
   - url: https://test-api.service.hmrc.gov.uk/misc/email
@@ -26,7 +24,7 @@ paths:
       operationId: SendEmailVerificationCode
       security:
         - applicationRestricted: [ ]
-      parameters: []
+      parameters: [ ]
       requestBody:
         description: ''
         content:
@@ -45,14 +43,14 @@ paths:
               schema:
                 $ref: 'docs/send-code-response.json'
               example:
-                correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
-                email: "joe@bloggs.co.uk"
+                status: 'CODE_SENT'
+                message: 'Email containing verification code has been sent'
         3XX:
           description: |
             The request has been redirected. Clients should follow the redirect using the location header as per the HTTP specification.
         400:
           description: |
-            The request was invalid, e.g the postcode is not well formed.
+            The request was invalid, e.g Invalid Email.
         5XX:
           description: |
             An unexpected server error occurred when processing the request. These are usually temporary and consumers should try again.
@@ -65,7 +63,7 @@ paths:
       operationId: CheckEmailVerificationCode
       security:
         - applicationRestricted: [ ]
-      parameters: []
+      parameters: [ ]
       requestBody:
         description: ''
         content:
@@ -73,9 +71,8 @@ paths:
             schema:
               $ref: 'docs/verify-code-request.json'
             example:
-              correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
               email: "joe@bloggs.co.uk"
-              verificationCode: "ABCXYZ"
+              verificationCode: "GTNFVP"
         required: true
       responses:
         '200':
@@ -86,14 +83,14 @@ paths:
               schema:
                 $ref: 'docs/verify-code-response.json'
               example:
-                correlationId: "c33b596c-2cdd-4bf7-a20c-8efd1b32802f"
-                email: "joe@bloggs.co.uk"
+                status: 'CODE_VERIFIED'
+                message: 'The verification code for the email verified successfully'
         3XX:
           description: |
             The request has been redirected. Clients should follow the redirect using the location header as per the HTTP specification.
         400:
           description: |
-            The request was invalid, e.g the postcode is not well formed.
+            The request was invalid, e.g Invalid Email.
         5XX:
           description: |
             An unexpected server error occurred when processing the request. These are usually temporary and consumers should try again.
