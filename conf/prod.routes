@@ -1,4 +1,5 @@
 # Add all the application routes to the app.routes file
 ->        /email-gateway        app.Routes
+->        /                     app.Routes
 ->        /                     health.Routes
 ->        /                     definition.Routes
