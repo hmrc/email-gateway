@@ -7,11 +7,8 @@
     "versions": [
       {
         "version": "1.0",
-        "status": "ALPHA",
-        "access": {
-          "type": "PRIVATE"
-        },
-        "endpointsEnabled": false
+        "status": "BETA",
+        "endpointsEnabled": true
       }
     ]
   }
