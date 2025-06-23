@@ -53,7 +53,7 @@ class EmailController @Inject()(
     }
   }
 
-  def checkConnectivity(): Unit = {
+  private def checkConnectivity(): Unit = {
     val url = s"${config.verificationBaseUrl}/email-verification/v2/send-code"
     connector.checkConnectivity(url, config.internalAuthToken).map { result =>
       if (result) {

@@ -29,7 +29,6 @@ import play.api.routing.sird.{POST => SPOST, _}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.core.server.{Server, ServerConfig}
-import uk.gov.hmrc.http.HeaderCarrier
 
 class EmailControllerSpec
     extends AnyWordSpec
@@ -47,7 +46,6 @@ class EmailControllerSpec
   implicit val mat: Materializer = app.injector.instanceOf[Materializer]
 
   "POST /insights" should {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     "forward a 200 response from the downstream service" in {
       val response = """{
