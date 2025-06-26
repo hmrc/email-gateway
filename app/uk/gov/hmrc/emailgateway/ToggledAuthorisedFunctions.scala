@@ -29,7 +29,7 @@ trait ToggledAuthorisedFunctions extends AuthorisedFunctions {
 
   class ToggledAuthorisedFunction(enabled: Boolean, predicate: Predicate) {
     def apply[A](body: => Future[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
-      val result = if (enabled) authConnector.authorise(predicate, EmptyRetrieval) else Future.successful()
+      val result = if (enabled) authConnector.authorise(predicate, EmptyRetrieval) else Future.successful( () )
       result.flatMap(_ => body)
     }
   }
