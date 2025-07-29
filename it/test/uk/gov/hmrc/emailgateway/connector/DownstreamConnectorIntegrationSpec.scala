@@ -20,8 +20,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor
 import org.apache.pekko.stream.Materializer
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.http.HeaderNames
-import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, AnyContentAsJson, Result}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.emailgateway.support.{IntegrationBaseSpec, WireMockHelper}
@@ -50,9 +50,9 @@ class DownstreamConnectorIntegrationSpec extends IntegrationBaseSpec with ScalaF
           )
       )
 
-      val request: FakeRequest[AnyContentAsJson] = FakeRequest(POST, "/test-endpoint")
+      val request: FakeRequest[JsValue] = FakeRequest(POST, "/test-endpoint")
         .withHeaders(CONTENT_TYPE -> "application/json")
-        .withJsonBody(Json.parse("""{"key": "value"}"""))
+        .withBody(Json.parse("""{"key": "value"}"""))
 
       val result: Future[Result] = connector.forward(request, s"http://localhost:${WireMockHelper.wireMockPort}/test-endpoint", "authToken")
 
@@ -72,9 +72,9 @@ class DownstreamConnectorIntegrationSpec extends IntegrationBaseSpec with ScalaF
           )
       )
 
-      val request: FakeRequest[AnyContentAsJson] = FakeRequest(POST, "/test-endpoint")
+      val request: FakeRequest[JsValue] = FakeRequest(POST, "/test-endpoint")
         .withHeaders(CONTENT_TYPE -> "application/json")
-        .withJsonBody(Json.parse("""{"key": "value"}"""))
+        .withBody(Json.parse("""{"key": "value"}"""))
 
       val result: Future[Result] = connector.forward(request, s"http://localhost:${WireMockHelper.wireMockPort}/test-endpoint", "authToken")
 
@@ -84,7 +84,8 @@ class DownstreamConnectorIntegrationSpec extends IntegrationBaseSpec with ScalaF
     }
 
     "return a MethodNotAllowed response when the request method is not supported" in new Test {
-      val request: FakeRequest[AnyContent] = FakeRequest(GET, "/test-endpoint")
+      val request: FakeRequest[JsValue] = FakeRequest(GET, "/test-endpoint")
+        .withBody(Json.parse("""{"key": "value"}"""))
         .withHeaders(CONTENT_TYPE -> "application/json")
 
       val result: Future[Result] = connector.forward(request, s"http://localhost:${WireMockHelper.wireMockPort}/test-endpoint", "authToken")
@@ -94,9 +95,9 @@ class DownstreamConnectorIntegrationSpec extends IntegrationBaseSpec with ScalaF
     }
 
     "return an InternalServerError response when there is an issue forwarding the request" in new Test {
-      val request: FakeRequest[AnyContentAsJson] = FakeRequest(POST, "/test-endpoint")
+      val request: FakeRequest[JsValue] = FakeRequest(POST, "/test-endpoint")
         .withHeaders(CONTENT_TYPE -> "application/json")
-        .withJsonBody(Json.parse("""{"key": "value"}"""))
+        .withBody(Json.parse("""{"key": "value"}"""))
 
       // Simulate an error in the connector
       val result: Future[Result] = connector.forward(request, "invalid-url", "authToken")
