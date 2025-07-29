@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.emailgateway.controllers
 
-import play.api.Logger
+import play.api.libs.json.JsValue
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.StandardApplication
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthProviders}
@@ -38,9 +38,7 @@ class EmailController @Inject()(
     extends BackendController(cc)
     with ToggledAuthorisedFunctions {
 
-  private val logger = Logger(this.getClass.getSimpleName)
-
-  def any(): Action[AnyContent] = Action.async { implicit request =>
+  def any(): Action[JsValue] = Action.async(parse.json) { implicit request =>
     toggledAuthorised(
       config.rejectInternalTraffic,
       AuthProviders(StandardApplication)
@@ -52,17 +50,4 @@ class EmailController @Inject()(
       connector.forward(request, url, config.internalAuthToken)
     }
   }
-
-  private def checkConnectivity(): Unit = {
-    val url = s"${config.verificationBaseUrl}/email-verification/v2/send-code"
-    connector.checkConnectivity(url, config.internalAuthToken).map { result =>
-      if (result) {
-        logger.info("Connectivity to email-verification established")
-      } else {
-        logger.error("ERROR: Could not connect to email-verification")
-      }
-    }
-  }
-
-  checkConnectivity()
 }

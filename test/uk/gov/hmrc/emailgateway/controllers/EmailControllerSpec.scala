@@ -31,7 +31,7 @@ import play.api.test.Helpers._
 import play.core.server.{Server, ServerConfig}
 
 class EmailControllerSpec
-    extends AnyWordSpec
+  extends AnyWordSpec
     with Matchers
     with GuiceOneAppPerSuite {
   val verificationPort = 11222
@@ -48,10 +48,10 @@ class EmailControllerSpec
   "POST /insights" should {
 
     "forward a 200 response from the downstream service" in {
-      val response = """{
-                       |"correlationId": "some-correlation-id",
-                       |"email":"joe@blogs.co.uk",
-                       |}""".stripMargin
+      val response = Json.obj(
+        "correlationId" -> "some-correlation-id",
+        "email" -> "joe@blogs.co.uk",
+      )
 
       Server.withRouterFromComponents(
         ServerConfig(port = Some(verificationPort))
@@ -59,17 +59,14 @@ class EmailControllerSpec
         import components.{defaultActionBuilder => Action}
         {
           case r @ SPOST(p"/verify") =>
-            Action(
-              Ok(response)
-                .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-            )
+            Action(Ok(response))
         }
       } { _ =>
         val requestEmailJson = Json
           .parse("""{"email":"joe@blogs.co.uk"}""")
           .as[JsObject]
         val fakeRequest = FakeRequest("POST", "/verify")
-          .withJsonBody(requestEmailJson)
+          .withBody(requestEmailJson)
           .withHeaders(
             "True-Calling-Client" -> "example-service",
             HeaderNames.CONTENT_TYPE -> MimeTypes.JSON
@@ -77,13 +74,13 @@ class EmailControllerSpec
 
         val result = controller.any()(fakeRequest)
         status(result) shouldBe Status.OK
-        contentAsString(result) shouldBe response
+        contentAsJson(result) shouldBe response
       }
     }
 
     "forward a 404 response from the downstream service" in {
       val errorResponse =
-        """{"code": "MALFORMED_JSON", "path.missing: email"}""".stripMargin
+        Json.obj("code" -> "NOT_FOUND", "desc" -> "API not found")
 
       Server.withRouterFromComponents(
         ServerConfig(port = Some(verificationPort))
@@ -91,14 +88,11 @@ class EmailControllerSpec
         import components.{defaultActionBuilder => Action}
         {
           case r @ SPOST(p"/verify") =>
-            Action(
-              NotFound(errorResponse)
-                .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-            )
+            Action(NotFound(errorResponse))
         }
       } { _ =>
         val fakeRequest = FakeRequest("POST", "/verify")
-          .withJsonBody(Json.parse("""{"no-email": ""}"""))
+          .withBody(Json.parse("""{"no-email": ""}"""))
           .withHeaders(
             "True-Calling-Client" -> "example-service",
             HeaderNames.CONTENT_TYPE -> MimeTypes.JSON
@@ -106,13 +100,13 @@ class EmailControllerSpec
 
         val result = controller.any()(fakeRequest)
         status(result) shouldBe Status.NOT_FOUND
-        contentAsString(result) shouldBe errorResponse
+        contentAsJson(result) shouldBe errorResponse
       }
     }
 
     "forward a 400 response from the downstream service" in {
       val errorResponse =
-        """{"code": "MALFORMED_JSON", "path.missing: email"}""".stripMargin
+        Json.obj("code" -> "MALFORMED_JSON", "path.missing" -> "email")
 
       Server.withRouterFromComponents(
         ServerConfig(port = Some(verificationPort))
@@ -120,14 +114,11 @@ class EmailControllerSpec
         import components.{defaultActionBuilder => Action}
         {
           case r @ SPOST(p"/verify") =>
-            Action(
-              BadRequest(errorResponse)
-                .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-            )
+            Action(BadRequest(errorResponse))
         }
       } { _ =>
         val fakeRequest = FakeRequest("POST", "/verify")
-          .withJsonBody(Json.parse("""{"no-email": ""}"""))
+          .withBody(Json.parse("""{"no-email": ""}"""))
           .withHeaders(
             "True-Calling-Client" -> "example-service",
             HeaderNames.CONTENT_TYPE -> MimeTypes.JSON
@@ -135,13 +126,14 @@ class EmailControllerSpec
 
         val result = controller.any()(fakeRequest)
         status(result) shouldBe Status.BAD_REQUEST
-        contentAsString(result) shouldBe errorResponse
+        contentAsJson(result) shouldBe errorResponse
       }
     }
 
     "handle a malformed json payload" in {
+
       val errorResponse =
-        """{"code": "MALFORMED_JSON", "path.missing: email"}""".stripMargin
+        Json.obj("statusCode" -> 400, "message" -> "bad request, cause: invalid json")
 
       Server.withRouterFromComponents(
         ServerConfig(port = Some(verificationPort))
@@ -149,10 +141,7 @@ class EmailControllerSpec
         import components.{defaultActionBuilder => Action}
         {
           case r @ SPOST(p"/verify") =>
-            Action(
-              BadRequest(errorResponse)
-                .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-            )
+            Action(BadRequest(errorResponse))
         }
       } { _ =>
         val fakeRequest = FakeRequest("POST", "/verify")
@@ -164,16 +153,14 @@ class EmailControllerSpec
 
         val result = controller.any()(fakeRequest)
         status(result) shouldBe Status.BAD_REQUEST
-        contentAsString(result) shouldBe errorResponse
+        contentAsJson(result) shouldBe errorResponse
       }
     }
 
     "return bad gateway if there is no connectivity to the downstream service" in {
-      val errorResponse =
-        """{"code": "REQUEST_DOWNSTREAM", "desc": "An issue occurred when the downstream service tried to handle the request"}""".stripMargin
 
       val fakeRequest = FakeRequest("POST", "/email-gateway/verify")
-        .withJsonBody(Json.parse("""{"address": "AB123456C"}"""))
+        .withBody(Json.parse("""{"address": "AB123456C"}"""))
         .withHeaders(
           "True-Calling-Client" -> "example-service",
           HeaderNames.CONTENT_TYPE -> MimeTypes.JSON
@@ -181,7 +168,10 @@ class EmailControllerSpec
 
       val result = controller.any()(fakeRequest)
       status(result) shouldBe Status.BAD_GATEWAY
-      contentAsString(result) shouldBe errorResponse
+      contentAsJson(result) shouldBe Json.obj(
+        "code" -> "REQUEST_DOWNSTREAM",
+        "desc" -> "An issue occurred when the downstream service tried to handle the request"
+      )
     }
   }
 }
