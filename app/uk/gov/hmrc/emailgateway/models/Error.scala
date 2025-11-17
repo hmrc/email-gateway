@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emailgateway.config
+package uk.gov.hmrc.emailgateway.models
 
-import com.google.inject.AbstractModule
-import uk.gov.hmrc.emailgateway.controllers.actions.{CorrelationIdAction, CorrelationIdActionImpl}
+import play.api.libs.json.{Json, Writes}
+import uk.gov.hmrc.emailgateway.config.Constants
 
-class Module extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[CorrelationIdAction]).to(classOf[CorrelationIdActionImpl])
+sealed class Error(val code: String, val desc: String)
+
+case object MissingCorrelationId extends Error("MISSING_CORRELATION_ID", s"${Constants.xCorrelationId} header is missing from the request")
+
+object Error {
+  implicit val writes: Writes[Error] = Writes { model =>
+    Json.obj(
+      "statusCode" -> model.code,
+      "message" -> model.desc
+    )
   }
 }

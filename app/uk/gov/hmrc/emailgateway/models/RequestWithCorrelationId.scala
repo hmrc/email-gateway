@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.emailgateway.config
+package uk.gov.hmrc.emailgateway.models
 
-import com.google.inject.AbstractModule
-import uk.gov.hmrc.emailgateway.controllers.actions.{CorrelationIdAction, CorrelationIdActionImpl}
+import play.api.mvc.{Request, WrappedRequest}
 
-class Module extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[CorrelationIdAction]).to(classOf[CorrelationIdActionImpl])
-  }
-}
+case class RequestWithCorrelationId[A](
+  correlationId: String,
+  request: Request[A]
+) extends WrappedRequest[A](request)

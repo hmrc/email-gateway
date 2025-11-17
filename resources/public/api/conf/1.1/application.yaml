@@ -1,0 +1,282 @@
+openapi: 3.0.3
+info:
+  title: Email Verification API
+  version: '1.1'
+  description: |
+    # Overview
+    ## Email Verification
+    This API enables verification of a user's email by sending a unique verification code, which the user must enter to complete the verification process.
+  contact:
+    name: CIP Insights & Reputation Team
+    email: cip-insights-and-reputation-g@digital.hmrc.gov.uk
+
+servers:
+  - url: https://test-api.service.hmrc.gov.uk/misc/email
+    description: Sandbox
+  - url: https://api.service.hmrc.gov.uk/misc/email
+    description: Production
+
+paths:
+  /send-code:
+    post:
+      summary: Send a verification code to the provided email
+      description: Generate a unique verification code and send it to the provided email address.
+      operationId: SendEmailVerificationCode
+      security:
+        - applicationRestricted: []
+      parameters:
+        - name: User-Agent
+          in: header
+          schema:
+            type: string
+          required: true
+          description: Identifies the client application making the request.
+      requestBody:
+        description: Email address where the verification code should be sent.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../1.0/docs/send-code-request.json'
+            example:
+              email: "joe@bloggs.co.uk"
+      responses:
+        '200':
+          description: Verification code successfully sent.
+          content:
+            application/json:
+              schema:
+                $ref: '../1.0/docs/send-code-response.json'
+              example:
+                status: 'CODE_SENT'
+                message: 'Email containing verification code has been sent.'
+        '400':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "CODE_NOT_SENT"
+                  message:
+                    type: string
+                    example: "Invalid email"
+              examples:
+                invalidEmail:
+                  summary: Invalid email example
+                  value:
+                    status: "CODE_NOT_SENT"
+                    message: "Invalid email"
+        '5XX':
+          description: |
+            An unexpected server error occurred when processing the request. These are temporary and consumers should try again.
+      deprecated: false
+
+  /verify-code:
+    post:
+      summary: Verify an email verification code
+      description: Verify the verification code sent to this email matches.
+      operationId: CheckEmailVerificationCode
+      security:
+        - applicationRestricted: []
+      parameters:
+        - name: User-Agent
+          in: header
+          schema:
+            type: string
+          required: true
+          description: Identifies the client application making the request.
+      requestBody:
+        description: Email address and verification code to be verified.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../1.0/docs/verify-code-request.json'
+            example:
+              email: "joe@bloggs.co.uk"
+              verificationCode: "GTNFVP"
+      responses:
+        '200':
+          description: Email address successfully verified.
+          content:
+            application/json:
+              schema:
+                $ref: '../1.0/docs/verify-code-response.json'
+              example:
+                status: 'CODE_VERIFIED'
+                message: 'The verification code for the email verified successfully'
+        '400':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "CODE_NOT_VALIDATED"
+                  message:
+                    type: string
+                    example: "Invalid email"
+              examples:
+                invalidEmail:
+                  summary: Invalid email example
+                  value:
+                    status: "CODE_NOT_VALIDATED"
+                    message: "Invalid email"
+                invalidVerificationCode:
+                  summary: Invalid verification code example
+                  value:
+                    status: "CODE_NOT_VALIDATED"
+                    message: "Invalid verification code"
+        '404':
+          description: Verification code not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "CODE_NOT_VERIFIED"
+                  message:
+                    type: string
+                    example: "Invalid verification code"
+              examples:
+                invalidVerificationCodeNotFound:
+                  summary: Invalid verification code not found example
+                  value:
+                    status: "CODE_NOT_VERIFIED"
+                    message: "Invalid verification code"
+        '5XX':
+          description: |
+            An unexpected server error occurred when processing the request. These are temporary and consumers should try again.
+      deprecated: false
+
+  /check/insights:
+    post:
+      summary: Email Insights
+      description: >
+        Check the risking insights for the provided email.
+      operationId: EmailInsights
+      security:
+        - applicationRestricted: [ ]
+      parameters:
+        - $ref: "#/components/parameters/userAgentHeader"
+        - $ref: "#/components/parameters/xCorrelationIdHeader"
+      requestBody:
+        description: 'The email to check for risking insights.'
+        content:
+          application/json:
+            schema:
+              $ref: 'docs/email-insights-request.json'
+            example:
+              email: "test@gmail.com"
+        required: true
+      responses:
+        '200':
+          description: Risking insights for the email
+          content:
+            application/json:
+              schema:
+                $ref: 'docs/email-insights-response.json'
+              examples:
+                success:
+                  externalValue: 'docs/email-insights-response-success.json'
+        '400':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                missingCorrelationId:
+                  summary: Missing X-Correlation-ID Header
+                  value:
+                    status: "MISSING_CORRELATION_ID"
+                    message: "X-Correlation-ID header is missing from the request"
+        '403':
+          description: Authorisation errors
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                userNotAllowed:
+                  summary: User not allowed
+                  value:
+                    status: "USER_NOT_ALLOWED"
+                    message: "One or more user agents in 'some-service' are not authorized to use this service."
+        '502':
+          description: Downstream service issues
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+              examples:
+                downstreamError:
+                  summary: Issue on Downstream Gateway
+                  value:
+                    status: "REQUEST_DOWNSTREAM"
+                    message: "An unrecoverable error occurred when the downstream service tried to handle the request"
+        '5XX':
+          description: |
+            Any other unexpected server error occurred when processing the request. These are temporary and consumers should try again.
+
+      deprecated: false
+
+components:
+  securitySchemes:
+    applicationRestricted:
+      type: oauth2
+      description: |
+        HMRC supports OAuth 2.0 for authenticating application-restricted API requests using an OAuth 2.0 Bearer Token in the AUTHORIZATION header.
+        See [HMRC API Documentation](https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/application-restricted-endpoints) for details.
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          scopes: {}
+
+  schemas:
+    errorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The type of error returned.
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: The detailed error message.
+          example: "Enter a valid verification code"
+
+  parameters:
+    userAgentHeader:
+      name: User-Agent
+      in: header
+      schema:
+        type: string
+        example: "some-service"
+      required: true
+      description: A string that identifies the client application making the request.
+    xCorrelationIdHeader:
+      name: X-Correlation-ID
+      in: header
+      schema:
+        type: string
+        pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+      required: true
+      description: A UUID to uniquely identify the request.
+    acceptHeader:
+      name: Accept
+      in: header
+      schema:
+        type: string
+        enum:
+          - "application/vnd.hmrc.1.0+json"
+          - "application/vnd.hmrc.1.0+xml"
+      required: true

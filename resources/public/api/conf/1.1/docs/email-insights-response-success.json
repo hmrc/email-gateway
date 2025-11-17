@@ -1,0 +1,13 @@
+{
+  "attribute": "EMAIL",
+  "value": "test@gmail.com",
+  "insights": {
+    "risk": {
+      "score": 100,
+      "reason": "ON_WATCH_LIST"
+    }
+  },
+  "watchlistData": {
+    "isOnWatchlist": true
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Email Insights Response",
+  "type": "object",
+  "properties": {
+    "attribute": {
+      "type": "string",
+      "examples": [
+        "EMAIL"
+      ]
+    },
+    "value": {
+      "type": "string",
+      "examples": [
+        "test@gmail.com"
+      ]
+    },
+    "insights": {
+      "type": "object",
+      "properties": {
+        "risk": {
+          "type": "object",
+          "properties": {
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "examples": [
+                0.0,
+                16.67,
+                33.33,
+                50.0,
+                66.67,
+                83.33,
+                100.0
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "enum": ["ON_WATCH_LIST", "NOT_ON_WATCH_LIST"]
+            }
+          },
+          "required": ["score", "reason"]
+        }
+      },
+      "required": ["risk"]
+    },
+    "watchlistData": {
+      "type": "object",
+      "properties": {
+        "isOnWatchlist": {
+          "type": "boolean",
+          "example": true
+        }
+      },
+      "required": ["isOnWatchlist"]
+    }
+  },
+  "required": ["attribute", "value", "insights", "watchlistData"]
+}
