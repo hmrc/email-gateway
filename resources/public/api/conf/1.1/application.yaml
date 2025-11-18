@@ -220,8 +220,8 @@ paths:
                 downstreamError:
                   summary: Issue on Downstream Gateway
                   value:
-                    status: "REQUEST_DOWNSTREAM"
-                    message: "An unrecoverable error occurred when the downstream service tried to handle the request"
+                    code: "REQUEST_DOWNSTREAM"
+                    desc: "An unrecoverable error occurred when the downstream service tried to handle the request"
         '5XX':
           description: |
             Any other unexpected server error occurred when processing the request. These are temporary and consumers should try again.
