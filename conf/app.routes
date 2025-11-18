@@ -1,2 +1,3 @@
 POST        /send-code          uk.gov.hmrc.emailgateway.controllers.EmailController.any()
 POST        /verify-code        uk.gov.hmrc.emailgateway.controllers.EmailController.any()
+POST        /check/insights     uk.gov.hmrc.emailgateway.controllers.EmailInsightsController.checkInsights()

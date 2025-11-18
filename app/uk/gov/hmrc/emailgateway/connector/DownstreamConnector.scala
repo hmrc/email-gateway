@@ -18,10 +18,11 @@ package uk.gov.hmrc.emailgateway.connector
 
 import play.api.Logging
 import play.api.http.HeaderNames._
-import play.api.http.{HeaderNames, HttpEntity, MimeTypes}
+import play.api.http.HttpEntity
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Results.{BadGateway, InternalServerError, MethodNotAllowed}
+import play.api.mvc.Results.{BadGateway, BadRequest, InternalServerError, MethodNotAllowed}
 import play.api.mvc.{Request, ResponseHeader, Result}
+import uk.gov.hmrc.emailgateway.models.{DownstreamError, Error, RequestForwardingError, UnsupportedMethodError}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, HttpResponse, StringContextOps}
 
@@ -29,16 +30,16 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DownstreamConnector @Inject()(httpClient: HttpClientV2) extends Logging {
+class DownstreamConnector @Inject() (httpClient: HttpClientV2) extends Logging {
 
   def forward(request: Request[JsValue], url: String, authToken: String)(implicit ec: ExecutionContext): Future[Result] = {
     import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 
-    logger.info(s"Forwarding to downstream url: $url")
+    logger.debug(s"Forwarding to downstream url: $url")
 
-    (request.method, request.headers(HeaderNames.CONTENT_TYPE)) match {
-      case ("POST", MimeTypes.JSON) =>
-        val onwardHeaders = request.headers.remove(CONTENT_LENGTH, HOST, AUTHORIZATION).headers
+    request.method match {
+      case "POST" =>
+        val onwardHeaders = request.headers.remove(CONTENT_LENGTH, CONTENT_TYPE, HOST, AUTHORIZATION).headers
         implicit val hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization(authToken)))
 
         try {
@@ -53,25 +54,28 @@ class DownstreamConnector @Inject()(httpClient: HttpClientV2) extends Logging {
                 HttpEntity.Streamed(response.bodyAsSource, None, response.header(CONTENT_TYPE))
               )
             }
-            .recover {
-              case _: Throwable =>
-                BadGateway(toErrorResponse("REQUEST_DOWNSTREAM", "An issue occurred when the downstream service tried to handle the request"))
+            .recoverWith { case t: Throwable =>
+              Future.successful(
+                BadGateway(Json.toJson[Error](DownstreamError))
+              )
             }
         } catch {
-          case _: Throwable =>
-            Future.successful(InternalServerError(toErrorResponse("REQUEST_FORWARDING", "An issue occurred when forwarding the request to the downstream service")))
+          case t: Throwable =>
+            Future.successful(
+              InternalServerError(Json.toJson[Error](RequestForwardingError))
+            )
         }
 
       case _ =>
-        Future.successful(MethodNotAllowed(toErrorResponse("UNSUPPORTED_METHOD", "Unsupported HTTP method or content-type")))
+        Future.successful(MethodNotAllowed(Json.toJson[Error](UnsupportedMethodError)))
     }
   }
-
-  private def toErrorResponse(code: String, desc: String): JsValue =
-    Json.obj("code" -> code, "desc" -> desc)
 
   private def cleanseResponseHeaders(response: HttpResponse): Map[String, String] =
     response.headers
       .filterNot { case (k, _) => Seq(CONTENT_TYPE, CONTENT_LENGTH, TRANSFER_ENCODING).map(_.toUpperCase).contains(k.toUpperCase) }
-      .view.mapValues(_.mkString).toMap
+      .view
+      .mapValues(_.mkString)
+      .toMap
+
 }

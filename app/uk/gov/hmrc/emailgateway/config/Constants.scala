@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,6 @@
 
 package uk.gov.hmrc.emailgateway.config
 
-import com.google.inject.AbstractModule
-import uk.gov.hmrc.emailgateway.controllers.actions.{CorrelationIdAction, CorrelationIdActionImpl}
-
-class Module extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[CorrelationIdAction]).to(classOf[CorrelationIdActionImpl])
-  }
+object Constants {
+  val xCorrelationId = "X-Correlation-ID"
 }
