@@ -1,13 +1,18 @@
 {
   "attribute": "EMAIL",
-  "value": "test@gmail.com",
+  "value": "john.doe@gmail.com",
   "insights": {
     "risk": {
-      "score": 100,
-      "reason": "ON_WATCH_LIST"
+      "score": 22.5,
+      "reason": "NOT_ON_WATCH_LIST. EMAIL john.doe@gmail.com is 3 hops from a something risky. The average EMAIL is 4.7 hops from something risky."
+    },
+    "watchlistData": {
+      "isOnWatchlist": true
+    },
+    "graphData": {
+      "reasons": [
+        "EMAIL john.doe@gmail.com is 3 hops from a something risky. The average EMAIL is 4.7 hops from something risky."
+      ]
     }
-  },
-  "watchlistData": {
-    "isOnWatchlist": true
   }
 }

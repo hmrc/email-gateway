@@ -43,18 +43,33 @@
           "required": ["score", "reason"]
         }
       },
-      "required": ["risk"]
-    },
-    "watchlistData": {
-      "type": "object",
-      "properties": {
-        "isOnWatchlist": {
-          "type": "boolean",
-          "example": true
-        }
+      "watchlistData": {
+        "type": "object",
+        "properties": {
+          "isOnWatchlist": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": ["isOnWatchlist"]
       },
-      "required": ["isOnWatchlist"]
+      "graphData": {
+        "type": "object",
+        "properties": {
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "examples": ["EMAIL john.doe@gmail.com is 3 hops from a something risky. The average EMAIL is 4.7 hops from something risky."]
+            }
+          }
+        },
+        "required": [
+          "reasons"
+        ]
+      },
+      "required": ["risk", "watchlistData", "graphData"]
     }
   },
-  "required": ["attribute", "value", "insights", "watchlistData"]
+  "required": ["attribute", "value", "insights"]
 }
