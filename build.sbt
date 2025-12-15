@@ -12,6 +12,7 @@ lazy val microservice = Project("email-gateway", file("."))
     scalacOptions += "-Wconf:src=routes/.*:s",
   )
   .settings(CodeCoverageSettings.settings*)
+  .settings(PlayKeys.playDefaultPort := 9700)
   .settings(
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
   )
