@@ -12,7 +12,9 @@
     "graphData": {
       "reasons": [
         "EMAIL john.doe@gmail.com is 3 hops from a something risky. The average EMAIL is 4.7 hops from something risky."
-      ]
+      ],
+      "hops": 3,
+      "avgHops": 4.7
     }
   }
 }
