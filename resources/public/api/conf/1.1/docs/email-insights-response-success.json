@@ -15,6 +15,36 @@
       ],
       "hops": 3,
       "avgHops": 4.7
+    },
+    "relationship": {
+      "attributes": [
+        {
+          "attribute": "person_full_name",
+          "count": 4,
+          "attributeValues": [
+            {
+              "value": "Monisha Radjou",
+              "numOfOccurrences": 1,
+              "lastSeen": "2025-11-11T14:31:23.083Z"
+            },
+            {
+              "value": "Jack Wills",
+              "numOfOccurrences": 1,
+              "lastSeen": "2025-11-11T14:31:23.083Z"
+            },
+            {
+              "value": "Charity two",
+              "numOfOccurrences": 15,
+              "lastSeen": "2025-10-22T12:44:02.817Z"
+            },
+            {
+              "value": "Contact Name 2",
+              "numOfOccurrences": 1,
+              "lastSeen": "2025-11-11T14:31:23.083Z"
+            }
+          ]
+        }
+      ]
     }
   }
 }
