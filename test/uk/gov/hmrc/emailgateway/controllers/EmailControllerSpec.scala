@@ -58,7 +58,7 @@ class EmailControllerSpec
       ) { components =>
         import components.{defaultActionBuilder => Action}
         {
-          case r @ SPOST(p"/verify") =>
+          case SPOST(p"/verify") =>
             Action(Ok(response))
         }
       } { _ =>
@@ -87,7 +87,7 @@ class EmailControllerSpec
       ) { components =>
         import components.{defaultActionBuilder => Action}
         {
-          case r @ SPOST(p"/verify") =>
+          case SPOST(p"/verify") =>
             Action(NotFound(errorResponse))
         }
       } { _ =>
@@ -113,7 +113,7 @@ class EmailControllerSpec
       ) { components =>
         import components.{defaultActionBuilder => Action}
         {
-          case r @ SPOST(p"/verify") =>
+          case SPOST(p"/verify") =>
             Action(BadRequest(errorResponse))
         }
       } { _ =>
@@ -140,7 +140,7 @@ class EmailControllerSpec
       ) { components =>
         import components.{defaultActionBuilder => Action}
         {
-          case r @ SPOST(p"/verify") =>
+          case SPOST(p"/verify") =>
             Action(BadRequest(errorResponse))
         }
       } { _ =>

@@ -6,8 +6,8 @@ object CodeCoverageSettings {
   private val excludedPackages: Seq[String] = Seq(
     "<empty>",
     "Reverse.*",
-    "uk.gov.hmrc.BuildInfo",
-    "app.*",
+    ".*BuildInfo.*",
+    ".*InvalidJsonErrorHandler.*",
     "prod.*",
     ".*Routes.*",
     "testOnly.*",
@@ -16,8 +16,8 @@ object CodeCoverageSettings {
 
   val settings: Seq[Setting[_]] = Seq(
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
-    ScoverageKeys.coverageMinimumStmtTotal := 100,
-    ScoverageKeys.coverageFailOnMinimum := false,
+    ScoverageKeys.coverageMinimumStmtTotal := 95,
+    ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
 }

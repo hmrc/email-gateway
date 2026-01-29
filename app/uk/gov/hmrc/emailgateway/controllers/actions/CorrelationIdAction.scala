@@ -21,7 +21,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Results.BadRequest
 import play.api.mvc.{ActionRefiner, Request, Result}
 import uk.gov.hmrc.emailgateway.config.Constants
-import uk.gov.hmrc.emailgateway.models.RequestWithCorrelationId
 import uk.gov.hmrc.emailgateway.models.{Error, MissingCorrelationId, RequestWithCorrelationId}
 
 import scala.concurrent.{ExecutionContext, Future}

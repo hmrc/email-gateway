@@ -19,7 +19,7 @@ package uk.gov.hmrc.emailgateway.controllers
 
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -31,7 +31,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ToggledAuthorisedFunctionsSpec extends AnyWordSpec with ScalaFutures {
+class ToggledAuthorisedFunctionsSpec extends AnyWordSpec with Matchers with ScalaFutures {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 

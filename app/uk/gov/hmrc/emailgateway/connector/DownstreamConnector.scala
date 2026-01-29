@@ -20,7 +20,8 @@ import play.api.Logging
 import play.api.http.HeaderNames._
 import play.api.http.HttpEntity
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Results.{BadGateway, BadRequest, InternalServerError, MethodNotAllowed}
+import play.api.libs.ws.writeableOf_JsValue
+import play.api.mvc.Results.{BadGateway, InternalServerError, MethodNotAllowed}
 import play.api.mvc.{Request, ResponseHeader, Result}
 import uk.gov.hmrc.emailgateway.models.{DownstreamError, Error, RequestForwardingError, UnsupportedMethodError}
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -48,19 +49,19 @@ class DownstreamConnector @Inject() (httpClient: HttpClientV2) extends Logging {
             .withBody(request.body)
             .setHeader(onwardHeaders: _*)
             .execute[HttpResponse]
-            .map { response: HttpResponse =>
+            .map { (response: HttpResponse) =>
               Result(
                 ResponseHeader(response.status, cleanseResponseHeaders(response)),
                 HttpEntity.Streamed(response.bodyAsSource, None, response.header(CONTENT_TYPE))
               )
             }
-            .recoverWith { case t: Throwable =>
+            .recoverWith { case _: Throwable =>
               Future.successful(
                 BadGateway(Json.toJson[Error](DownstreamError))
               )
             }
         } catch {
-          case t: Throwable =>
+          case _: Throwable =>
             Future.successful(
               InternalServerError(Json.toJson[Error](RequestForwardingError))
             )
