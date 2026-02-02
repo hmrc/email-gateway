@@ -30,6 +30,7 @@ import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.emailgateway.models.{Error, MissingCorrelationId}
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
+import play.api.libs.ws.writeableOf_String
 
 class EmailInsightsControllerIntegrationSpec
     extends AnyWordSpec

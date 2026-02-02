@@ -27,7 +27,7 @@ import uk.gov.hmrc.auth.core.AuthorisationException
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException, JsValidationException, NotFoundException, UpstreamErrorResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendHeaderCarrierProvider
-import uk.gov.hmrc.play.bootstrap.backend.http.ErrorResponse
+import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
 import uk.gov.hmrc.play.bootstrap.config.HttpAuditEvent
 
 import javax.inject.Inject

@@ -28,6 +28,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
+import play.api.libs.ws.writeableOf_String
 
 class EmailControllerIntegrationSpec
     extends AnyWordSpec
