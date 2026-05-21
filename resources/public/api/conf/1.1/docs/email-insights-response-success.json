@@ -16,6 +16,49 @@
       "hops": 3,
       "avgHops": 4.7
     },
+    "resolvedShortestPathGraphResponse": {
+      "riskPaths": [
+        {
+          "shortestPath": [
+            {
+              "id": 1,
+              "attributeId": "john.doe@gmail.com",
+              "attributeType": "email"
+            },
+            {
+              "id": 2,
+              "attributeId": "35.176.73.226",
+              "attributeType": "ip_address"
+            }
+          ]
+        }
+      ],
+      "riskDetails": [
+        {
+          "source": {
+            "id": 1,
+            "attributeId": "john.doe@gmail.com",
+            "attributeType": "email"
+          },
+          "destination": {
+            "id": 2,
+            "attributeId": "35.176.73.226",
+            "attributeType": "ip_address"
+          },
+          "events": {
+            "events": [
+              {
+                "id": "cd1c8724cc2f04a84075e00b2cb8ab319f34b49e8873b6a774c469a164a85664",
+                "type": "VATObligationsRetrieved",
+                "time": "2026-01-26 08:06:51.377"
+              }
+            ],
+            "weight": 1
+          }
+        }
+      ],
+      "reason": "Attribute john.doe@gmail.com is in the database. The vertex id is 1, data is included."
+    },
     "relationship": {
       "attributes": [
         {
