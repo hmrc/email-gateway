@@ -79,6 +79,150 @@
             "reasons"
           ]
         },
+        "resolvedShortestPathGraphResponse": {
+          "type": "object",
+          "properties": {
+            "riskPaths": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "shortestPath": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "number",
+                          "examples": [1, 2]
+                        },
+                        "attributeId": {
+                          "type": "string",
+                          "examples": ["john.doe@gmail.com"]
+                        },
+                        "attributeType": {
+                          "type": "string",
+                          "enum": ["phone_number", "user_id", "device_id", "bank_account", "ip_address", "email", "vrn", "nino", "sa_utr", "ct_utr"]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "attributeId",
+                        "attributeType"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "shortestPath"
+                ]
+              }
+            },
+            "riskDetails": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number",
+                        "examples": [1, 2]
+                      },
+                      "attributeId": {
+                        "type": "string",
+                        "examples": ["john.doe@gmail.com"]
+                      },
+                      "attributeType": {
+                        "type": "string",
+                        "enum": ["phone_number", "user_id", "device_id", "bank_account", "ip_address", "email", "vrn", "nino", "sa_utr", "ct_utr"]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "attributeId",
+                      "attributeType"
+                    ]
+                  },
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number",
+                        "examples": [1, 2]
+                      },
+                      "attributeId": {
+                        "type": "string",
+                        "examples": ["john.doe@gmail.com"]
+                      },
+                      "attributeType": {
+                        "type": "string",
+                        "enum": ["phone_number", "user_id", "device_id", "bank_account", "ip_address", "email", "vrn", "nino", "sa_utr", "ct_utr"]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "attributeId",
+                      "attributeType"
+                    ]
+                  },
+                  "events": {
+                    "type": "object",
+                    "properties": {
+                      "events": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "examples": ["cd1c8724cc2f04a84075e00b2cb8ab319f34b49e8873b6a774c469a164a85664"]
+                            },
+                            "type": {
+                              "type": "string",
+                              "examples": ["VATObligationsRetrieved"]
+                            },
+                            "time": {
+                              "type": "string",
+                              "examples": ["2026-01-26 08:06:51.377"]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "time"
+                          ]
+                        }
+                      },
+                      "weight": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "events",
+                      "weight"
+                    ]
+                  }
+                },
+                "required": [
+                  "source",
+                  "destination",
+                  "events"
+                ]
+              }
+            },
+            "reason": {
+              "type": "string",
+              "examples": ["Attribute john.doe@gmail.com is in the database. The vertex id is 1, data is included."]
+            }
+          },
+          "required": [
+            "riskPaths",
+            "riskDetails",
+            "reason"
+          ]
+        },
         "relationship": {
           "type": "object",
           "properties": {
